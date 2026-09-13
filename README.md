@@ -21,36 +21,37 @@ A comprehensive **Kotlin Multiplatform (KMP)** project demonstrating the power o
 Tools allow your agent to perform specific tasks. In Koog, you define tools using the `Tool` class and `typeToken` for type-safe arguments and results.
 
 ```kotlin
-@Serializable
-data class MathArgs(
-    @param:LLMDescription("The first number for the operation")
-    val firstNumber: Int,
-    @param:LLMDescription("The second number for the operation")
-    val secondNumber: Int
-)
 
 object MathsTool {
-    val add = object : Tool<MathArgs, Int>(
-        argsType = typeToken<MathArgs>(),
-        resultType = typeToken<Int>(),
-        name = "add",
-        description = "Adds two numbers together and returns the sum."
-    ) {
-        override suspend fun execute(args: MathArgs): Int = args.firstNumber + args.secondNumber
-    }
+  val add = object : Tool<MathArgs, Double>(
+    argsType = typeToken<MathArgs>(),
+    resultType = typeToken<Double>(),
+    name = "add_numbers",
+    description = "Adds two numbers together. Use this for ANY addition."
+  ) {
 
-    val multiply = object : Tool<MathArgs, Int>(
-        argsType = typeToken<MathArgs>(),
-        resultType = typeToken<Int>(),
-        name = "multiply",
-        description = "Multiplies two numbers together and returns the product."
-    ) {
-        override suspend fun execute(args: MathArgs): Int = args.firstNumber * args.secondNumber
+    override suspend fun execute(args: MathArgs): Double {
+      println(">> MathsTool: Adding ${args.a} + ${args.b}")
+      return args.a + args.b
     }
+  }
 
-    val all = listOf(add, multiply)
+  val multiply = object : Tool<MathArgs, Double>(
+    argsType = typeToken<MathArgs>(),
+    resultType = typeToken<Double>(),
+    name = "multiply_numbers",
+    description = "Multiplies two numbers together. Use this for ANY multiplication."
+  ) {
+    override suspend fun execute(args: MathArgs): Double {
+      println(">> MathsTool: Multiplying ${args.a} * ${args.b}")
+      return args.a * args.b
+    }
+  }
+
+  val all = listOf(add, multiply)
 }
 ```
+
 
 ---
 
@@ -59,22 +60,46 @@ object MathsTool {
 The `AIAgent` is the core component. You can install features like `EventHandler` to monitor agent activity.
 
 ```kotlin
-val agent = AIAgent(
-    toolRegistry = toolRegistry,
-    promptExecutor = getPlatform().promptExecutor,
-    llmModel = OllamaModels.Meta.LLAMA_3_2_3B,
-    systemPrompt = """
-             You are a helpful assistant.
-             
-             Note: Call tools only when it's needed, answer user questions.
-    """.trimIndent()
-) {
-    install(EventHandler) {
-        onToolCallStarting { ctx ->
-            println(">> Calling tool: ${ctx.toolName} with args ${ctx.toolArgs}")
-        }
+class AgentProvider {
+  fun provideAgent(): AIAgent<String, String> {
+
+    val toolRegistry = ToolRegistry {
+      tools(MathsTool.all)
     }
+
+    val agent = AIAgent(
+      toolRegistry = toolRegistry,
+      promptExecutor = getPlatform().promptExecutor,
+      llmModel = OllamaModels.Meta.LLAMA_3_2_3B,
+      systemPrompt = """
+    You are a helpful assistant.
+
+    TOOL USAGE RULES:
+    - You MUST use the `add_numbers` tool for any addition and the `multiply_numbers` tool for any multiplication.
+    - Do NOT calculate these yourself. Use the tools to ensure accuracy.
+    - If a tool is not relevant to the request, answer the user directly.
+    - Do not expose tool metadata, internal reasoning, or tool details in your final response.
+            """.trimIndent()
+    ) {
+      install(EventHandler) {
+        onToolCallStarting { ctx ->
+          println(">> Calling tool: ${ctx.toolName} with args ${ctx.toolArgs}")
+        }
+      }
+    }
+
+    return agent
+
+  }
 }
+```
+## Log
+
+```
+>> Calling tool: add_numbers with args {"a":3, "b":5}
+>> MathsTool: Adding 3.0 + 5.0
+>> Calling tool: add_numbers with args {"b":10, "a":10}
+>> MathsTool: Adding 10.0 + 10.0
 ```
 
 ---
@@ -127,11 +152,3 @@ Validate your shared logic and server implementation across different environmen
 - [Kotlin Multiplatform Docs](https://www.jetbrains.com/help/kotlin-multiplatform-dev/get-started.html)
 - [Compose Multiplatform Docs](https://kotlinlang.org/compose-multiplatform/)
 - [Ollama](https://docs.ollama.com/quickstart)
-
-
-```
->> Calling tool: add_numbers with args {"a":3, "b":5}
->> MathsTool: Adding 3.0 + 5.0
->> Calling tool: add_numbers with args {"b":10, "a":10}
->> MathsTool: Adding 10.0 + 10.0
-```
