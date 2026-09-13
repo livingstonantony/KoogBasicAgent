@@ -125,3 +125,11 @@ Validate your shared logic and server implementation across different environmen
 - [Kotlin Multiplatform Docs](https://www.jetbrains.com/help/kotlin-multiplatform-dev/get-started.html)
 - [Compose Multiplatform Docs](https://kotlinlang.org/compose-multiplatform/)
 - [Ollama](https://docs.ollama.com/quickstart)
+
+
+```
+>> Calling tool: add_numbers with args {"a":3, "b":5}
+>> MathsTool: Adding 3.0 + 5.0
+>> Calling tool: add_numbers with args {"b":10, "a":10}
+>> MathsTool: Adding 10.0 + 10.0
+```

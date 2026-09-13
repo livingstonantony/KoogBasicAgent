@@ -7,38 +7,35 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class MathArgs(
-    @param:LLMDescription("The first number for the operation")
-    val firstNumber: Int,
-    @param:LLMDescription("The second number for the operation")
-    val secondNumber: Int
+    @param:LLMDescription("The first number")
+    val a: Double,
+    @param:LLMDescription("The second number")
+    val b: Double
 )
 
 object MathsTool {
-    val add = object : Tool<MathArgs, Int>(
+    val add = object : Tool<MathArgs, Double>(
         argsType = typeToken<MathArgs>(),
-        resultType = typeToken<Int>(),
-        name = "add",
-        description = "Adds two numbers together and returns the sum."
+        resultType = typeToken<Double>(),
+        name = "add_numbers",
+        description = "Adds two numbers together. Use this for ANY addition."
     ) {
 
-        override suspend fun execute(args: MathArgs): Int {
-
-            println("Adding ${args.firstNumber} and ${args.secondNumber}")
-            return args.firstNumber + args.secondNumber
+        override suspend fun execute(args: MathArgs): Double {
+            println(">> MathsTool: Adding ${args.a} + ${args.b}")
+            return args.a + args.b
         }
     }
 
-    val multiply = object : Tool<MathArgs, Int>(
+    val multiply = object : Tool<MathArgs, Double>(
         argsType = typeToken<MathArgs>(),
-        resultType = typeToken<Int>(),
-        name = "multiply",
-        description = "Multiplies two numbers together and returns the product."
+        resultType = typeToken<Double>(),
+        name = "multiply_numbers",
+        description = "Multiplies two numbers together. Use this for ANY multiplication."
     ) {
-        override suspend fun execute(args: MathArgs): Int{
-
-            println("Multiplying ${args.firstNumber} and ${args.secondNumber}")
-
-            return args.firstNumber * args.secondNumber
+        override suspend fun execute(args: MathArgs): Double {
+            println(">> MathsTool: Multiplying ${args.a} * ${args.b}")
+            return args.a * args.b
         }
     }
 

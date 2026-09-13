@@ -21,17 +21,10 @@ class AgentProvider {
     You are a helpful assistant.
 
     TOOL USAGE RULES:
-    - Do NOT call any tool for general knowledge, casual conversation, greetings,
-      opinions, explanations, or questions you can answer yourself.
-    - Call a tool ONLY when the user's request requires information or an action
-      that the tool specifically provides.
-    - If a tool is not required, answer the user directly.
-    - Never call a tool just because it is available.
-    - If you are unsure whether a tool is required, do not call it.
-
-    RESPONSE RULES:
-    - Answer in plain, user-readable text.
-    - Do not expose tool metadata, internal reasoning, or tool details.
+    - You MUST use the `add_numbers` tool for any addition and the `multiply_numbers` tool for any multiplication.
+    - Do NOT calculate these yourself. Use the tools to ensure accuracy.
+    - If a tool is not relevant to the request, answer the user directly.
+    - Do not expose tool metadata, internal reasoning, or tool details in your final response.
             """.trimIndent()
         ) {
             install(EventHandler) {

@@ -15,6 +15,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.text.selection.SelectionContainer
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.Send
 import androidx.compose.material3.*
@@ -223,21 +224,25 @@ fun ChatItem(chatMessage: ChatMessage) {
             Alignment.Start
     ) {
 
-
         Box(
             modifier = Modifier
                 .padding(8.dp)
                 .clip(RoundedCornerShape(20.dp))
                 .background(color = MaterialTheme.colorScheme.primary)
         ) {
-            Text(
-                modifier = Modifier
-                    .padding(horizontal = 10.dp, vertical = 10.dp),
-                text = chatMessage.text,
-                color = Color.White,
-                style = MaterialTheme.typography.bodyMedium
+            SelectionContainer {
 
-            )
+
+                Text(
+                    modifier = Modifier
+                        .padding(horizontal = 10.dp, vertical = 10.dp),
+                    text = chatMessage.text,
+                    color = Color.White,
+                    style = MaterialTheme.typography.bodyMedium
+
+                )
+            }
+
         }
     }
 }
