@@ -14,6 +14,8 @@ A comprehensive **Kotlin Multiplatform (KMP)** project demonstrating the power o
 
 ---
 
+<img src="https://github.com/livingstonantony/KMPInstaloader/blob/master/doc/demo.png" width="600">
+
 ## 🛠 Tool Creation
 
 Tools allow your agent to perform specific tasks. In Koog, you define tools using the `Tool` class and `typeToken` for type-safe arguments and results.
