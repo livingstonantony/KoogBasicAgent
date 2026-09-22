@@ -14,7 +14,7 @@ A comprehensive **Kotlin Multiplatform (KMP)** project demonstrating the power o
 
 ---
 
-<img src="https://github.com/livingstonantony/KoogBasicAgent/tree/master/doc/demo.png" width="600">
+![KoogBasicAgent Demo](./doc/demo.png)
 
 ## 🛠 Tool Creation
 
