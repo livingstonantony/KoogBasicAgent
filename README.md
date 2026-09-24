@@ -267,3 +267,4 @@ KoogBasicAgent/
 - [Kotlin Multiplatform Documentation](https://www.jetbrains.com/help/kotlin-multiplatform-dev/get-started.html)
 - [Compose Multiplatform Documentation](https://kotlinlang.org/compose-multiplatform/)
 - [Ollama Quickstart Guide](https://docs.ollama.com/quickstart)
+
