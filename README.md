@@ -1,154 +1,269 @@
 # KoogBasicAgent 🤖
 
-A comprehensive **Kotlin Multiplatform (KMP)** project demonstrating the power of the **Koog AI Framework**. This project showcases how to build and deploy AI agents across Android, iOS, Web (Wasm/JS), Desktop (JVM), and Server environments.
+A comprehensive **Kotlin Multiplatform (KMP)** project demonstrating how to build, configure, and deploy AI Agents using the **Koog AI Framework** across multiple target platforms (**Android**, **iOS**, **Desktop JVM**, **Web Wasm/JS**, and **Ktor Server**).
 
-## 🚀 Overview
-
-`KoogBasicAgent` is a template and learning resource for developers looking to integrate LLM capabilities into their multiplatform applications. It leverages the Koog AI Framework to facilitate agent creation, tool registration, and seamless communication with local models like **Ollama**.
-
-### Key Learning Objectives
-- [x] **Basic Agent Setup**: Configure `AIAgent` within a multiplatform context.
-- [x] **Tool Registration**: Define and register custom tools for the agent to use.
-- [x] **Local LLM Integration**: Connect with local models (e.g., Llama 3.2) using Ollama.
-- [x] **Multiplatform Deployment**: Share core agent logic across mobile, web, desktop, and server.
+This project serves as an open-source template and educational demo for teaching AI Agent development, custom Tool registration, and Local LLM integration with **Ollama**.
 
 ---
 
-<img src="https://github.com/livingstonantony/KoogBasicAgent/tree/master/doc/demo.png" width="600">
+## 📐 Architecture Flow
+
+The diagram below illustrates how user interactions flow through the platform-specific UI targets down to the shared business logic, Koog AI Agent engine, custom registered tools, and the local LLM backend.
+
+```mermaid
+flowchart TD
+    subgraph UI_Layer["🖥️ Target Platforms (UI / Backend)"]
+        Android["Android App (:app:androidApp)"]
+        Desktop["Desktop JVM App (:app:desktopApp)"]
+        WebWasm["Web Wasm App (:app:webApp)"]
+        WebJS["Web JS App (:app:webApp)"]
+        iOS["iOS App (:app:iosApp)"]
+        Server["Ktor Server (:server)"]
+    end
+
+    subgraph Shared_Layer["📦 Shared Logic Modules"]
+        SharedModule[":app:shared (Compose Multiplatform ChatScreen)"]
+        CoreModule[":core (Core Utilities & Common Models)"]
+    end
+
+    subgraph Koog_Agent["🤖 Koog AI Agent Engine"]
+        AgentProvider["AgentProvider"]
+        AIAgent["AIAgent<String, String>"]
+        ToolRegistry["ToolRegistry"]
+        EventHandler["EventHandler (Lifecycle Monitoring)"]
+    end
+
+    subgraph Custom_Tools["🛠️ Custom Registered Tools"]
+        AddTool["add_numbers (MathsTool.add)"]
+        MultiplyTool["multiply_numbers (MathsTool.multiply)"]
+    end
+
+    subgraph Platform_Executor["🔌 Platform Executor Bridge"]
+        PromptExecutor["PromptExecutor (simpleOllamaAIExecutor)"]
+        AndroidHost["Android Emulator -> 10.0.2.2:11434"]
+        LocalHost["Desktop / Web / Server -> localhost:11434"]
+        iOSHost["iOS Simulator -> Local IP:11434"]
+    end
+
+    subgraph Local_LLM["🧠 Local LLM Backend"]
+        Ollama["Ollama Engine (Llama 3.2 3B)"]
+    end
+
+    UI_Layer --> SharedModule
+    SharedModule --> CoreModule
+    SharedModule --> AgentProvider
+    AgentProvider --> AIAgent
+    AIAgent --> ToolRegistry
+    AIAgent --> EventHandler
+    ToolRegistry --> AddTool
+    ToolRegistry --> MultiplyTool
+    AIAgent --> PromptExecutor
+    PromptExecutor --> AndroidHost
+    PromptExecutor --> LocalHost
+    PromptExecutor --> iOSHost
+    AndroidHost --> Ollama
+    LocalHost --> Ollama
+    iOSHost --> Ollama
+```
+
+---
+
+## 📚 Libraries Implemented
+
+Here is a summary of all key libraries and frameworks implemented in this project:
+
+| Category | Library Module | Description |
+| :--- | :--- | :--- |
+| **AI Framework** | `ai.koog:koog-agents` (`1.2.0`) | Core Koog framework for `AIAgent`, tool execution, prompt management, and lifecycle events. |
+| **AI Extensions** | `ai.koog:koog-agents-additions` (`1.2.0-beta`) | Supplemental utilities and extensions for Koog agents. |
+| **UI Framework** | `org.jetbrains.compose.*` (`1.13.0-alpha01`) | Compose Multiplatform UI framework (`runtime`, `foundation`, `material3`, `ui`, `components-resources`). |
+| **Serialization** | `kotlinx-serialization-json` | Provides JSON encoding/decoding and type-safe argument metadata mapping for LLM tools. |
+| **Concurrency** | `kotlinx-coroutines-core` / `swing` | Asynchronous coroutine support for model execution and UI thread safety. |
+| **HTTP Client** | `ai.koog:koog-http-client-ktor` | Ktor-backed HTTP client factory for model communication across mobile, web, and desktop. |
+| **Server Backend** | `io.ktor:ktor-server-*` (`3.5.2`) | Ktor Netty embedded server powering the backend microservice (`:server`). |
+| **Android Integration**| `androidx.activity:activity-compose` / `lifecycle` | Android activity hosting and lifecycle-aware ViewModel support. |
+
+---
 
 ## 🛠 Tool Creation
 
-Tools allow your agent to perform specific tasks. In Koog, you define tools using the `Tool` class and `typeToken` for type-safe arguments and results.
+Tools allow your AI agent to extend its capabilities by executing local Kotlin code functions. In Koog, creating a tool requires two main steps:
+
+### 1. Define Argument Data Class
+Annotate the input data class with `@Serializable` and use `@param:LLMDescription` so the LLM understands what arguments to provide.
+
+### 2. Implement `Tool<Args, Result>`
+Extend `Tool<Args, Result>`, passing `typeToken<Args>()` and `typeToken<Result>()` to retain generic type information at runtime.
 
 ```kotlin
+package dev.ell.koogbasicagent
 
+import ai.koog.agents.core.tools.Tool
+import ai.koog.agents.core.tools.annotations.LLMDescription
+import ai.koog.serialization.typeToken
+import kotlinx.serialization.Serializable
+
+// Step 1: Define argument structure with descriptions for the LLM
+@Serializable
+data class MathArgs(
+    @param:LLMDescription("The first number")
+    val a: Double,
+    @param:LLMDescription("The second number")
+    val b: Double
+)
+
+// Step 2: Implement custom tools
 object MathsTool {
-  val add = object : Tool<MathArgs, Double>(
-    argsType = typeToken<MathArgs>(),
-    resultType = typeToken<Double>(),
-    name = "add_numbers",
-    description = "Adds two numbers together. Use this for ANY addition."
-  ) {
-
-    override suspend fun execute(args: MathArgs): Double {
-      println(">> MathsTool: Adding ${args.a} + ${args.b}")
-      return args.a + args.b
+    val add = object : Tool<MathArgs, Double>(
+        argsType = typeToken<MathArgs>(),
+        resultType = typeToken<Double>(),
+        name = "add_numbers",
+        description = "Adds two numbers together. Use this for ANY addition."
+    ) {
+        override suspend fun execute(args: MathArgs): Double {
+            println(">> MathsTool: Adding ${args.a} + ${args.b}")
+            return args.a + args.b
+        }
     }
-  }
 
-  val multiply = object : Tool<MathArgs, Double>(
-    argsType = typeToken<MathArgs>(),
-    resultType = typeToken<Double>(),
-    name = "multiply_numbers",
-    description = "Multiplies two numbers together. Use this for ANY multiplication."
-  ) {
-    override suspend fun execute(args: MathArgs): Double {
-      println(">> MathsTool: Multiplying ${args.a} * ${args.b}")
-      return args.a * args.b
+    val multiply = object : Tool<MathArgs, Double>(
+        argsType = typeToken<MathArgs>(),
+        resultType = typeToken<Double>(),
+        name = "multiply_numbers",
+        description = "Multiplies two numbers together. Use this for ANY multiplication."
+    ) {
+        override suspend fun execute(args: MathArgs): Double {
+            println(">> MathsTool: Multiplying ${args.a} * ${args.b}")
+            return args.a * args.b
+        }
     }
-  }
 
-  val all = listOf(add, multiply)
+    val all = listOf(add, multiply)
 }
 ```
-
 
 ---
 
-## ⚙️ Agent Configuration
+## ⚙️ Agent Configuration and Tool Registration
 
-The `AIAgent` is the core component. You can install features like `EventHandler` to monitor agent activity.
+The `AIAgent` orchestrates conversations, tool selection, and model execution.
+
+1. **Tool Registration**: Register custom tools using `ToolRegistry { tools(...) }`.
+2. **Platform Prompt Executor**: Supply a platform-tailored `PromptExecutor` (e.g. connecting to Ollama at `http://10.0.2.2:11434` for Android Emulators or `http://localhost:11434` for Desktop/Web).
+3. **Model & System Prompt**: Specify the LLM model (e.g. `OllamaModels.Meta.LLAMA_3_2_3B`) and explicit system prompt rules governing tool usage.
+4. **Feature Installation**: Attach features like `EventHandler` to log tool calls or track performance.
 
 ```kotlin
+package dev.ell.koogbasicagent
+
+import ai.koog.agents.core.agent.AIAgent
+import ai.koog.agents.core.tools.ToolRegistry
+import ai.koog.agents.features.eventHandler.feature.EventHandler
+import ai.koog.prompt.executor.ollama.client.OllamaModels
+
 class AgentProvider {
-  fun provideAgent(): AIAgent<String, String> {
+    fun provideAgent(): AIAgent<String, String> {
 
-    val toolRegistry = ToolRegistry {
-      tools(MathsTool.all)
-    }
-
-    val agent = AIAgent(
-      toolRegistry = toolRegistry,
-      promptExecutor = getPlatform().promptExecutor,
-      llmModel = OllamaModels.Meta.LLAMA_3_2_3B,
-      systemPrompt = """
-    You are a helpful assistant.
-
-    TOOL USAGE RULES:
-    - You MUST use the `add_numbers` tool for any addition and the `multiply_numbers` tool for any multiplication.
-    - Do NOT calculate these yourself. Use the tools to ensure accuracy.
-    - If a tool is not relevant to the request, answer the user directly.
-    - Do not expose tool metadata, internal reasoning, or tool details in your final response.
-            """.trimIndent()
-    ) {
-      install(EventHandler) {
-        onToolCallStarting { ctx ->
-          println(">> Calling tool: ${ctx.toolName} with args ${ctx.toolArgs}")
+        // 1. Register tools in ToolRegistry
+        val toolRegistry = ToolRegistry {
+            tools(MathsTool.all)
         }
-      }
+
+        // 2. Instantiate and configure AIAgent
+        val agent = AIAgent(
+            toolRegistry = toolRegistry,
+            promptExecutor = getPlatform().promptExecutor,
+            llmModel = OllamaModels.Meta.LLAMA_3_2_3B,
+            systemPrompt = """
+                You are a helpful assistant.
+
+                TOOL USAGE RULES:
+                - You MUST use the `add_numbers` tool for any addition and the `multiply_numbers` tool for any multiplication.
+                - Do NOT calculate these yourself. Use the tools to ensure accuracy.
+                - If a tool is not relevant to the request, answer the user directly.
+                - Do not expose tool metadata, internal reasoning, or tool details in your final response.
+            """.trimIndent()
+        ) {
+            // 3. Install event handlers for observing agent activity
+            install(EventHandler) {
+                onToolCallStarting { ctx ->
+                    println(">> Calling tool: ${ctx.toolName} with args ${ctx.toolArgs}")
+                }
+            }
+        }
+
+        return agent
     }
-
-    return agent
-
-  }
 }
 ```
-## Log
 
-```
+### Execution Log Example
+
+When a user asks: *"What is 3 + 5 and 10 * 10?"*, the agent logs:
+
+```text
 >> Calling tool: add_numbers with args {"a":3, "b":5}
 >> MathsTool: Adding 3.0 + 5.0
->> Calling tool: add_numbers with args {"b":10, "a":10}
->> MathsTool: Adding 10.0 + 10.0
+>> Calling tool: multiply_numbers with args {"a":10, "b":10}
+>> MathsTool: Multiplying 10.0 * 10.0
 ```
+
+---
+
+## 🏃 Commands to Run Each Platform
+
+### Prerequisites
+Before running any target platform, make sure **Ollama** is installed and running locally with the Llama 3.2 model:
+
+```bash
+ollama run llama3.2
+```
+
+### Platform Commands
+
+| Target Platform | Command / Action | Description |
+| :--- | :--- | :--- |
+| **Android** | `./gradlew :app:androidApp:installDebug` | Builds and installs the debug APK on an attached Android device or emulator. |
+| **Desktop (JVM)** | `./gradlew :app:desktopApp:run` | Launches the Compose Desktop desktop application. |
+| **Server (Ktor)** | `./gradlew :server:run` | Starts the Ktor embedded Netty web server on `http://localhost:8080`. |
+| **Web (Wasm)** | `./gradlew :app:webApp:wasmJsBrowserDevelopmentRun` | Starts local dev server for WebAssembly target (opens in browser). |
+| **Web (JS)** | `./gradlew :app:webApp:jsBrowserDevelopmentRun` | Starts local dev server for Kotlin/JS target (opens in browser). |
+| **iOS** | Open `/app/iosApp` in **Xcode** | Build and run on iOS Simulator or connected iOS device via Xcode. |
+
+---
+
+## 🧪 Commands to Run Tests
+
+Execute unit tests across shared logic and server modules:
+
+| Target Environment | Command |
+| :--- | :--- |
+| **Android Shared Host Tests** | `./gradlew :app:shared:testAndroidHostTest` |
+| **Desktop (JVM) Shared Tests**| `./gradlew :app:shared:jvmTest` |
+| **Server Tests** | `./gradlew :server:test` |
+| **Web (Wasm) Shared Tests** | `./gradlew :app:shared:wasmJsTest` |
+| **iOS Simulator Tests** | `./gradlew :app:shared:iosSimulatorArm64Test` |
 
 ---
 
 ## 📁 Project Structure
 
-The project is organized into several modules to maximize code reuse:
-
-- **`/:core`**: Contains the core logic and Koog AI integrations shared between **all** targets.
-- **`/:app:shared`**: Shared UI and business logic for Compose Multiplatform applications (Android, iOS, Desktop, Web).
-    - `commonMain`: Shared logic for all targets.
-    - `iosMain`, `jvmMain`, etc.: Platform-specific implementations.
-- **`/:app:androidApp`**: Android-specific entry point and resources.
-- **`/:app:desktopApp`**: Desktop-specific entry point.
-- **`/:app:iosApp`**: iOS-specific entry point (SwiftUI).
-- **`/:server`**: Ktor server application.
-
----
-
-## 🏃 Running the Applications
-
-Ensure you have **Ollama** running locally with the required model (e.g., `llama3.2`) before starting the apps.
-
-| Platform | Command |
-| :--- | :--- |
-| **Android** | `./gradlew :app:androidApp:assembleDebug` |
-| **Desktop** | `./gradlew :app:desktopApp:run` (or `hotRun --auto`) |
-| **Server** | `./gradlew :server:run` |
-| **Web (Wasm)** | `./gradlew :app:webApp:wasmJsBrowserDevelopmentRun` |
-| **Web (JS)** | `./gradlew :app:webApp:jsBrowserDevelopmentRun` |
-| **iOS** | Open `/app/iosApp` in Xcode and run. |
-
----
-
-## 🧪 Running Tests
-
-Validate your shared logic and server implementation across different environments:
-
-- **Android**: `./gradlew :app:shared:testAndroidHostTest`
-- **Desktop**: `./gradlew :app:shared:jvmTest`
-- **Server**: `./gradlew :server:test`
-- **Web (Wasm)**: `./gradlew :app:shared:wasmJsTest`
-- **iOS**: `./gradlew :app:shared:iosSimulatorArm64Test`
+```text
+KoogBasicAgent/
+├── core/                  # Common core models and Koog framework integration
+├── app/
+│   ├── shared/            # Shared Compose Multiplatform UI & AgentProvider business logic
+│   ├── androidApp/        # Android activity entry point
+│   ├── desktopApp/        # Desktop (JVM) window entry point
+│   └── webApp/            # Web (Wasm / JS) browser entry point
+└── server/                # Ktor backend server
+```
 
 ---
 
 ## 📚 Resources
 
 - [Koog AI Framework Documentation](https://koog.ai)
-- [Kotlin Multiplatform Docs](https://www.jetbrains.com/help/kotlin-multiplatform-dev/get-started.html)
-- [Compose Multiplatform Docs](https://kotlinlang.org/compose-multiplatform/)
-- [Ollama](https://docs.ollama.com/quickstart)
+- [Kotlin Multiplatform Documentation](https://www.jetbrains.com/help/kotlin-multiplatform-dev/get-started.html)
+- [Compose Multiplatform Documentation](https://kotlinlang.org/compose-multiplatform/)
+- [Ollama Quickstart Guide](https://docs.ollama.com/quickstart)
