@@ -8,62 +8,18 @@ This project serves as an open-source template and educational demo for teaching
 
 ## 📐 Architecture Flow
 
-The diagram below illustrates how user interactions flow through the platform-specific UI targets down to the shared business logic, Koog AI Agent engine, custom registered tools, and the local LLM backend.
-
 ```mermaid
-flowchart TD
-    subgraph UI_Layer["🖥️ Target Platforms (UI / Backend)"]
-        Android["Android App (:app:androidApp)"]
-        Desktop["Desktop JVM App (:app:desktopApp)"]
-        WebWasm["Web Wasm App (:app:webApp)"]
-        WebJS["Web JS App (:app:webApp)"]
-        iOS["iOS App (:app:iosApp)"]
-        Server["Ktor Server (:server)"]
-    end
+flowchart LR
+    Platforms["📱 Platforms\n(Android, iOS, Desktop, Web, Server)"]
+    Shared["📦 Shared App Logic\n(:app:shared & :core)"]
+    Agent["🤖 Koog AI Agent\n(ToolRegistry)"]
+    Tools["🛠️ Custom Tools\n(MathsTool)"]
+    Ollama["🧠 Local LLM\n(Ollama - Llama 3.2)"]
 
-    subgraph Shared_Layer["📦 Shared Logic Modules"]
-        SharedModule[":app:shared (Compose Multiplatform ChatScreen)"]
-        CoreModule[":core (Core Utilities & Common Models)"]
-    end
-
-    subgraph Koog_Agent["🤖 Koog AI Agent Engine"]
-        AgentProvider["AgentProvider"]
-        AIAgent["AIAgent<String, String>"]
-        ToolRegistry["ToolRegistry"]
-        EventHandler["EventHandler (Lifecycle Monitoring)"]
-    end
-
-    subgraph Custom_Tools["🛠️ Custom Registered Tools"]
-        AddTool["add_numbers (MathsTool.add)"]
-        MultiplyTool["multiply_numbers (MathsTool.multiply)"]
-    end
-
-    subgraph Platform_Executor["🔌 Platform Executor Bridge"]
-        PromptExecutor["PromptExecutor (simpleOllamaAIExecutor)"]
-        AndroidHost["Android Emulator -> 10.0.2.2:11434"]
-        LocalHost["Desktop / Web / Server -> localhost:11434"]
-        iOSHost["iOS Simulator -> Local IP:11434"]
-    end
-
-    subgraph Local_LLM["🧠 Local LLM Backend"]
-        Ollama["Ollama Engine (Llama 3.2 3B)"]
-    end
-
-    UI_Layer --> SharedModule
-    SharedModule --> CoreModule
-    SharedModule --> AgentProvider
-    AgentProvider --> AIAgent
-    AIAgent --> ToolRegistry
-    AIAgent --> EventHandler
-    ToolRegistry --> AddTool
-    ToolRegistry --> MultiplyTool
-    AIAgent --> PromptExecutor
-    PromptExecutor --> AndroidHost
-    PromptExecutor --> LocalHost
-    PromptExecutor --> iOSHost
-    AndroidHost --> Ollama
-    LocalHost --> Ollama
-    iOSHost --> Ollama
+    Platforms --> Shared
+    Shared --> Agent
+    Agent --> Tools
+    Agent --> Ollama
 ```
 
 ---
