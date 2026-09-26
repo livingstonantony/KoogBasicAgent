@@ -3,6 +3,9 @@ package dev.ell.koogbasicagent
 import ai.koog.agents.core.agent.AIAgent
 import ai.koog.agents.core.tools.ToolRegistry
 import ai.koog.agents.features.eventHandler.feature.EventHandler
+import ai.koog.http.client.ktor.KtorKoogHttpClient
+import ai.koog.prompt.executor.llms.MultiLLMPromptExecutor
+import ai.koog.prompt.executor.ollama.client.OllamaClient
 import ai.koog.prompt.executor.ollama.client.OllamaModels
 
 
@@ -17,7 +20,7 @@ class AgentProvider {
 
         val agent = AIAgent(
             toolRegistry = toolRegistry,
-            promptExecutor = getPlatform().promptExecutor,
+            promptExecutor = MultiLLMPromptExecutor(OllamaClient(httpClientFactory = KtorKoogHttpClient.Factory())),
             llmModel = OllamaModels.Meta.LLAMA_3_2_3B,
             systemPrompt = """
     You are a helpful assistant.
