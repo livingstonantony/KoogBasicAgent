@@ -12,3 +12,7 @@ class IOSPlatform: Platform {
 }
 
 actual fun getPlatform(): Platform = IOSPlatform()
+
+actual fun logDebug(tag: String, message: String) {
+    println("[$tag] $message")
+}

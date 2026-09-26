@@ -4,6 +4,7 @@ import ai.koog.http.client.ktor.KtorKoogHttpClient
 import ai.koog.prompt.executor.llms.all.simpleOllamaAIExecutor
 import ai.koog.prompt.executor.model.PromptExecutor
 import android.os.Build
+import android.util.Log
 
 class AndroidPlatform : Platform {
     override val name: String = "Android ${Build.VERSION.SDK_INT}"
@@ -12,3 +13,7 @@ class AndroidPlatform : Platform {
 }
 
 actual fun getPlatform(): Platform = AndroidPlatform()
+
+actual fun logDebug(tag: String, message: String) {
+    Log.d(tag, message)
+}

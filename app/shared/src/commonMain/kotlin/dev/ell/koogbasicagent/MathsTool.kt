@@ -22,7 +22,7 @@ object MathsTool {
     ) {
 
         override suspend fun execute(args: MathArgs): Double {
-            println(">> MathsTool: Adding ${args.a} + ${args.b}")
+            logDebug("KoogAgent",">> MathsTool: Adding ${args.a} + ${args.b}")
             return args.a + args.b
         }
     }
@@ -34,7 +34,7 @@ object MathsTool {
         description = "Multiplies two numbers together. Use this for ANY multiplication."
     ) {
         override suspend fun execute(args: MathArgs): Double {
-            println(">> MathsTool: Multiplying ${args.a} * ${args.b}")
+            logDebug("KoogAgent",">> MathsTool: Multiplying ${args.a} * ${args.b}")
             return args.a * args.b
         }
     }

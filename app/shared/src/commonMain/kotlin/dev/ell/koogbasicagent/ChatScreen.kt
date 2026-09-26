@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
@@ -48,7 +49,10 @@ data class ChatMessage(
 )
 
 @Composable
-fun ChatScreen(tempChatMessage: List<ChatMessage>) {
+fun ChatScreen(
+    tempChatMessage: List<ChatMessage>,
+    modifier: Modifier = Modifier
+) {
 
     val scope = rememberCoroutineScope()
 
@@ -76,6 +80,7 @@ fun ChatScreen(tempChatMessage: List<ChatMessage>) {
             agent = AgentProvider().provideAgent()
         } catch (e: Exception) {
             println("Error: ChatScreen: ${e.message}")
+            logDebug("ChatScreen", "Error: ChatScreen: ${e.message}")
             connectionError = e.message
         } finally {
             isConnecting = false
@@ -84,8 +89,8 @@ fun ChatScreen(tempChatMessage: List<ChatMessage>) {
 
 
     Column(
-        modifier = Modifier
-            .fillMaxWidth()
+        modifier = modifier
+            .fillMaxSize()
             .imePadding()
     ) {
 
@@ -126,6 +131,7 @@ fun ChatScreen(tempChatMessage: List<ChatMessage>) {
                         chatMessages =
                             chatMessages + ChatMessage("Error: ${e.message}", Typer.USER)
                         println("Error: ChatScreen: ${e.message}")
+                        logDebug("ChatScreen", "Error: ChatScreen: ${e.message}")
                     } finally {
                         isLoading = false
                     }

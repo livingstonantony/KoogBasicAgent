@@ -11,3 +11,7 @@ class WasmPlatform: Platform {
 }
 
 actual fun getPlatform(): Platform = WasmPlatform()
+
+actual fun logDebug(tag: String, message: String) {
+    println("[$tag] $message")
+}

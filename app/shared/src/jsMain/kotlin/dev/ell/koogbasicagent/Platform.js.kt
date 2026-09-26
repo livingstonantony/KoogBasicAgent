@@ -17,3 +17,7 @@ class JsPlatform: Platform {
 }
 
 actual fun getPlatform(): Platform = JsPlatform()
+
+actual fun logDebug(tag: String, message: String) {
+    println("[$tag] $message")
+}

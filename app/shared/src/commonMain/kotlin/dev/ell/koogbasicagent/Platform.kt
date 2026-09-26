@@ -8,3 +8,5 @@ interface Platform {
 }
 
 expect fun getPlatform(): Platform
+
+expect fun logDebug(tag: String = "KoogAgent", message: String)
