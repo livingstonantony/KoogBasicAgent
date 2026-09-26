@@ -6,6 +6,14 @@ This project serves as an open-source template and educational demo for teaching
 
 ---
 
+## 📱 Screenshots
+
+| Android | iOS | Desktop (JVM) |
+| :---: | :---: | :---: |
+| <img src="doc/android.png" alt="Android Screenshot" width="260" /> | <img src="doc/ios.png" alt="iOS Screenshot" width="260" /> | <img src="doc/jvm.png" alt="Desktop JVM Screenshot" width="420" /> |
+
+---
+
 ## 📐 Architecture Flow
 
 ```mermaid
