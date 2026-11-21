@@ -21,7 +21,7 @@ flowchart LR
     Platforms["📱 Platforms\n(Android, iOS, Desktop, Web, Server)"]
     Shared["📦 Shared App Logic\n(:app:shared & :core)"]
     Agent["🤖 Koog AI Agent\n(ToolRegistry)"]
-    Tools["🛠️ Custom Tools\n(MathsTool)"]
+    Tools["🛠️ Custom Tools\n(MathsTool + TimeTool)"]
     Ollama["🧠 Local LLM\n(Ollama - Llama 3.2)"]
 
     Platforms --> Shared
