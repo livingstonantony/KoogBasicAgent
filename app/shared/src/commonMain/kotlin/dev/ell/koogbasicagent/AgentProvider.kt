@@ -34,7 +34,6 @@ class AgentProvider {
         ) {
             install(EventHandler) {
                 onToolCallStarting { ctx ->
-                    println(">> Calling tool: ${ctx.toolName} with args ${ctx.toolArgs}")
                     logDebug("KoogAgent", ">> Calling tool: ${ctx.toolName} with args ${ctx.toolArgs}")
                 }
             }
