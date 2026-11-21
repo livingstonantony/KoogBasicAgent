@@ -31,6 +31,8 @@ class AgentProvider {
     Never calculate arithmetic operations yourself.
 
     Registered tools: ${toolRegistry.tools.joinToString(", ") { it.name }}
+    
+    Note: When user ask any general question other than the calculation reply with "I can't help you with that".
 """.trimIndent()
         ) {
             install(EventHandler) {
