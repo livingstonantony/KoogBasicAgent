@@ -1,4 +1,4 @@
-package dev.ell.koogbasicagent
+package dev.ell.koogbasicagent.agent
 
 import ai.koog.agents.core.agent.AIAgent
 import ai.koog.agents.core.tools.ToolRegistry
@@ -7,6 +7,8 @@ import ai.koog.http.client.ktor.KtorKoogHttpClient
 import ai.koog.prompt.executor.llms.MultiLLMPromptExecutor
 import ai.koog.prompt.executor.ollama.client.OllamaClient
 import ai.koog.prompt.executor.ollama.client.OllamaModels
+import dev.ell.koogbasicagent.tool.MathsTool
+import dev.ell.koogbasicagent.logDebug
 
 
 class AgentProvider {
@@ -34,7 +36,10 @@ class AgentProvider {
         ) {
             install(EventHandler) {
                 onToolCallStarting { ctx ->
-                    logDebug("KoogAgent", ">> Calling tool: ${ctx.toolName} with args ${ctx.toolArgs}")
+                    logDebug(
+                        "KoogAgent",
+                        ">> Calling tool: ${ctx.toolName} with args ${ctx.toolArgs}"
+                    )
                 }
             }
         }

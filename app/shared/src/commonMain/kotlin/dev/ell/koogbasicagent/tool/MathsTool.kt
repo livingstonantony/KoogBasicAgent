@@ -1,8 +1,9 @@
-package dev.ell.koogbasicagent
+package dev.ell.koogbasicagent.tool
 
 import ai.koog.agents.core.tools.Tool
 import ai.koog.agents.core.tools.annotations.LLMDescription
 import ai.koog.serialization.typeToken
+import dev.ell.koogbasicagent.logDebug
 import kotlinx.serialization.Serializable
 
 @Serializable
@@ -22,7 +23,7 @@ object MathsTool {
     ) {
 
         override suspend fun execute(args: MathArgs): Double {
-            logDebug("KoogAgent",">> MathsTool: Adding ${args.a} + ${args.b}")
+            logDebug("KoogAgent", ">> MathsTool: Adding ${args.a} + ${args.b}")
             return args.a + args.b
         }
     }
@@ -34,7 +35,7 @@ object MathsTool {
         description = "Multiplies two numbers together. Use this for ANY multiplication."
     ) {
         override suspend fun execute(args: MathArgs): Double {
-            logDebug("KoogAgent",">> MathsTool: Multiplying ${args.a} * ${args.b}")
+            logDebug("KoogAgent", ">> MathsTool: Multiplying ${args.a} * ${args.b}")
             return args.a * args.b
         }
     }
