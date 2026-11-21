@@ -72,6 +72,8 @@ kotlin {
             // Koog
             implementation(libs.koog.agents)
             implementation(libs.koog.agents.additions)
+
+            implementation(libs.kotlinx.datetime)
         }
         commonTest.dependencies {
             implementation(libs.kotlin.test)

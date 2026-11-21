@@ -9,6 +9,7 @@ import ai.koog.prompt.executor.ollama.client.OllamaClient
 import ai.koog.prompt.executor.ollama.client.OllamaModels
 import dev.ell.koogbasicagent.tool.MathsTool
 import dev.ell.koogbasicagent.logDebug
+import dev.ell.koogbasicagent.tool.TimeTool
 
 
 class AgentProvider {
@@ -17,7 +18,7 @@ class AgentProvider {
         println("Agent connected")
         logDebug("KoogAgent", "Agent connected")
         val toolRegistry = ToolRegistry {
-            tools(MathsTool.all)
+            tools(MathsTool.all + TimeTool.all)
         }
 
         val agent = AIAgent(
@@ -37,10 +38,10 @@ class AgentProvider {
         ) {
             install(EventHandler) {
                 onToolCallStarting { ctx ->
-                    logDebug(
+                    /*logDebug(
                         "KoogAgent",
                         ">> Calling tool: ${ctx.toolName} with args ${ctx.toolArgs}"
-                    )
+                    )*/
                 }
             }
         }
