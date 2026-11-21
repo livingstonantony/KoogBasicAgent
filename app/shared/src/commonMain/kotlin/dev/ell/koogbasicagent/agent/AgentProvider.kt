@@ -25,14 +25,13 @@ class AgentProvider {
             promptExecutor = MultiLLMPromptExecutor(OllamaClient(httpClientFactory = KtorKoogHttpClient.Factory())),
             llmModel = OllamaModels.Meta.LLAMA_3_2_3B,
             systemPrompt = """
-    You are a helpful assistant.
+    You are a helpful calculator assistant.
 
-    TOOL USAGE RULES:
-    - You MUST use the `add_numbers` tool for any addition and the `multiply_numbers` tool for any multiplication.
-    - Do NOT calculate these yourself. Use the tools to ensure accuracy.
-    - If a tool is not relevant to the request, answer the user directly.
-    - Do not expose tool metadata, internal reasoning, or tool details in your final response.
-            """.trimIndent()
+    You must use the registered tools for arithmetic operations.
+    Never calculate arithmetic operations yourself.
+
+    Registered tools: ${toolRegistry.tools.joinToString(", ") { it.name }}
+""".trimIndent()
         ) {
             install(EventHandler) {
                 onToolCallStarting { ctx ->

@@ -28,6 +28,17 @@ object MathsTool {
         }
     }
 
+    val sub = object : Tool<MathArgs, Double>(
+        argsType = typeToken<MathArgs>(),
+        resultType = typeToken<Double>(),
+        name = "subtract_numbers",
+        description = "Subtracts two numbers. Use this for ANY subtraction."
+    ){
+        override suspend fun execute(args: MathArgs): Double {
+            logDebug("KoogAgent", ">> MathsTool: Subtracting ${args.a} - ${args.b}")
+            return args.a - args.b
+        }
+    }
     val multiply = object : Tool<MathArgs, Double>(
         argsType = typeToken<MathArgs>(),
         resultType = typeToken<Double>(),
@@ -40,5 +51,18 @@ object MathsTool {
         }
     }
 
-    val all = listOf(add, multiply)
+    val divide = object : Tool<MathArgs, Double>(
+        argsType = typeToken<MathArgs>(),
+        resultType = typeToken<Double>(),
+        name = "divide_numbers",
+        description = "Divides two numbers. Use this for ANY division."
+    ) {
+        override suspend fun execute(args: MathArgs): Double {
+            logDebug("KoogAgent", ">> MathsTool: Dividing ${args.a} / ${args.b}")
+            return args.a / args.b
+        }
+    }
+
+
+    val all = listOf(add, multiply, sub, divide)
 }
